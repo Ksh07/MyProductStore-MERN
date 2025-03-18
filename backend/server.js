@@ -43,6 +43,16 @@ app.delete('/api/products/:id', async (req, res) => {
         res.status(404).json({ success: false, message: "Product not found" })
     }
 })
+
+app.get("/api/products" , async(req,res)=>{
+    try {
+        const products = await Product.find({}); //empty means it will find all products
+        res.status(200).json({success: true, data: products})
+    } catch (error) {
+        console.log("Error in fetching products: ", error.message)
+        res.status(500).json({success:false, message: "Server Error"})
+    }
+})
 app.get('/', (req, res) => {
     res.send("Welcome123")
 });
