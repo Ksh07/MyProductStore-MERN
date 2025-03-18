@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv'
 import { connectDB } from './db.js';
 import { Product } from './products.modal.js';
+import mongoose from 'mongoose';
 dotenv.config()
 const app = express();
 
@@ -44,7 +45,7 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 })
 
-app.get("/api/products" , async(req,res)=>{
+app.get('/api/products' , async(req,res)=>{
     try {
         const products = await Product.find({}); //empty means it will find all products
         res.status(200).json({success: true, data: products})
@@ -53,6 +54,28 @@ app.get("/api/products" , async(req,res)=>{
         res.status(500).json({success:false, message: "Server Error"})
     }
 })
+
+app.put('/api/products/:id' , async(req,res)=>{
+const {id} = req.params;
+const product = req.body; 
+
+//this if can be handled in catch part
+//Similar to M.S.T.O. 
+if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(404).json({success:false, message: "Product not found"})
+}
+try {
+    //new: true means newProduct variable main ab new product(updated) jayenga , 
+    // nahi likhte toh original purane wala jata
+    const newProduct = await Product.findByIdAndUpdate(id, product, {new: true})
+    res.status(200).json({success: true, data: newProduct})
+
+} catch (error) {
+    console.log("Error in Updating Product: ", error.message);
+    res.status(500).json({success: false, message: "Server Error"});
+}
+})
+
 app.get('/', (req, res) => {
     res.send("Welcome123")
 });
